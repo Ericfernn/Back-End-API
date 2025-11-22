@@ -11,13 +11,17 @@ const emprestimosModel = {
     },
 
     criarEmprestimo: (dados, callback) => {
-            const sql = "INSERT INTO Emprestimos (id_livro, nome_pessoa, data_emprestimo) VALUES (?, ?, ?)";
-            connection.query(sql, [dados.id_livro, dados.nome_pessoa, dados.data_emprestimo], callback);
+            const sql = "INSERT INTO Emprestimos (idLivro, idUsuario, dataEmprestimo, dataDevolucao) VALUES (?, ?, ?, ?)";
+            connection.query(sql, [
+                dados.idLivro,
+                dados.idUsuario,
+                dados.dataEmprestimo,
+                dados.dataDevolucao], callback);
 },
 
     atualizarEmprestimo: (id, dados, callback) => {
-        const sql = "UPDATE Emprestimos SET id_livro = ?, nome_pessoa = ?, data_emprestimo = ? WHERE id = ?"
-        connection.query(sql, [dados.id_livro, dados.nome_pessoa, dados.data_emprestimo, id], callback)
+        const sql = "UPDATE Emprestimos SET idLivro = ?, idUsuario = ?, dataEmprestimo = ?, dataDevolucao = ? WHERE id = ?";
+        connection.query(sql, [dados.idLivro, dados.idUsuario, dados.dataEmprestimo, dados.dataDevolucao, id], callback);
     },
 
     deletarEmprestimo: (id, callback) => {
