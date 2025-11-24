@@ -64,39 +64,39 @@
 
     <!-- Usuários -->
     <div class="card">
-        <h3 class = "usuariosHeader" >Usuários</h3>
+        <h3 class = "usuariosHeader" >Usuários</h3> <!-- Card da seção de usuários -->
 
-        <label for="u-nome">Nome</label>
-        <input id="u-nome" type="text" placeholder="Nome completo">
+        <label for="u-nome">Nome</label><!-- Título da seção -->
+        <input id="u-nome" type="text" placeholder="Nome completo"><!-- Rótulo do campo nome -->
 
         <label for="u-matricula">Matrícula</label>
-        <input id="u-matricula" type="text" placeholder="Matrícula">
+        <input id="u-matricula" type="text" placeholder="Matrícula"><!-- Campo nome do usuário -->
 
-        <label for="u-tipo">Tipo</label>
-        <select id="u-tipo">
+        <label for="u-tipo">Tipo</label><!-- Rótulo matrícula -->
+        <select id="u-tipo"><!-- Campo matrícula -->
             <option value="Aluno">Aluno</option>
             <option value="Professor">Professor</option>
             <option value="Funcionario">Funcionario</option>
         </select>
 
-        <div>
+        <div><!-- Grupo de botões de CRUD -->
             <button onclick="createUser()">Criar Usuário</button>
             <button class="edit" onclick="editUser()">Editar Usuário</button>
             <button class="delete" onclick="deleteUser()">Deletar Usuário</button>
         </div>
 
-        <div id="user-msg"></div>
-        <div id="user-debug" class="debug" style="display:none"></div>
+        <div id="user-msg"></div><!-- Área de mensagens -->
+        <div id="user-debug" class="debug" style="display:none"></div><!-- Debug -->
 
         <h4>Lista de Usuários</h4>
-        <table id="users-table">
+        <table id="users-table"><!-- Tabela de usuários -->
             <thead><tr><th>ID</th><th>Nome</th><th>Matrícula</th><th>Tipo</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 
     <!-- Livros -->
-    <div class="card">
+    <div class="card"><!-- Card da seção livros -->
         <h3 class = "livrosHeader" >Livros</h3>
 
         <label for="b-titulo">Título</label>
@@ -108,13 +108,13 @@
         <label for="b-categoria">Categoria</label>
         <input id="b-categoria" type="text" placeholder="Categoria">
 
-        <label for="b-disponibilidade">Disponibilidade</label>
-        <select id="b-disponibilidade">
+        <label for="b-disponibilidade">Disponibilidade</label><!-- Rótulo disponibilidade -->
+        <select id="b-disponibilidade"><!-- Seleção disponibilidade -->
             <option value="1">Sim</option>
             <option value="0">Não</option>
         </select>
 
-        <div>
+        <div><!-- Botões CRUD dos livros -->
             <button onclick="createBook()">Criar livro</button>
             <button class="edit" onclick="editBook()">Editar Livro</button>
             <button class="delete" onclick="deleteBook()">Deletar Livro</button>
@@ -131,7 +131,7 @@
     </div>
 
     <!-- Empréstimos -->
-    <div class="card fullwidth">
+    <div class="card fullwidth"><!-- Card ocupando largura total -->
         <h3 class = "emprestimosHeader" >Empréstimos</h3>
 
         <label for="e-id-livro">ID do Livro</label>
@@ -146,7 +146,7 @@
         <label for="e-data-devolucao">Data de Devolução (opcional)</label>
         <input id="e-data-devolucao" type="date">
 
-        <div>
+        <div><!-- Botões CRUD -->
             <button onclick="createLoan()">Registrar empréstimo</button>
             <button class="edit" onclick="editLoan()">Editar Empréstimo</button>
             <button class="delete" onclick="deleteLoan()">Deletar Empréstimo</button>
@@ -168,35 +168,35 @@
     const API_BASE = 'http://localhost:3000';
 
     function showMsg(elId, text, ok=true) {
-        const el = document.getElementById(elId);
+        const el = document.getElementById(elId); // Pega o elemento
         el.innerHTML = `<div class="msg ${ok ? 'ok' : 'err'}">${text}</div>`;
         setTimeout(() => { if (el) el.innerHTML = ''; }, 4000);
     }
 
     function showDebug(elId, text) {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        el.style.display = 'block';
-        el.textContent = text;
+        const el = document.getElementById(elId);//Obtém elemento
+        if (!el) return; //Se não existir, sai
+        el.style.display = 'block'; //Mostra
+        el.textContent = text; //Insere texto
     }
 
-    function escapeHtml(str){
+    function escapeHtml(str){ //Evita XSS
         if (str === null || str === undefined) return '';
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     }
 
     // USERS
-    async function refreshUsers() {
+    async function refreshUsers() { //Atualiza lista de usuários
         try {
-            const res = await fetch(`${API_BASE}/usuario`);
+            const res = await fetch(`${API_BASE}/usuario`); //Chama API
             if (!res.ok) throw new Error('Status ' + res.status);
             const data = await res.json();
-            const tbody = document.querySelector('#users-table tbody');
+            const tbody = document.querySelector('#users-table tbody'); //Seleciona tabela
             tbody.innerHTML = '';
-            data.forEach(u => {
+            data.forEach(u => { //Para cada usuário
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${u.id}</td><td>${escapeHtml(u.nome)}</td><td>${escapeHtml(u.matricula)}</td><td>${escapeHtml(u.tipo)}</td>`;
-                tbody.appendChild(tr);
+                tbody.appendChild(tr); //Adiciona na tabela
             });
         } catch (err) {
             showMsg('user-msg','Erro ao carregar usuários', false);
@@ -204,15 +204,15 @@
         }
     }
 
-    async function createUser() {
-        const nome = document.getElementById('u-nome').value.trim();
-        const matricula = document.getElementById('u-matricula').value.trim();
-        const tipo = document.getElementById('u-tipo').value;
+    async function createUser() { //Cria usuário
+        const nome = document.getElementById('u-nome').value.trim(); //Pega nome
+        const matricula = document.getElementById('u-matricula').value.trim(); //Pega matrícula
+        const tipo = document.getElementById('u-tipo').value; //Pega tipo
         if (!nome || !matricula || !tipo) { showMsg('user-msg','Preencha todos os campos', false); return; }
 
         try {
             const res = await fetch(`${API_BASE}/usuario`, {
-                method: 'POST',
+                method: 'POST', //Método POST
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ nome, matricula, tipo })
             });
