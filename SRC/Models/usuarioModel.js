@@ -14,6 +14,7 @@ const usuarioModel = {
     adicionarUsuario: (dados, callback) => {
             const sql = "INSERT INTO usuario (nome, matricula, tipo) VALUES (?, ?, ?)";
             connection.query(sql, [dados.nome, dados.matricula, dados.tipo], callback);
+
     },
     atualizarUsuario : (id, dados, callback) => {
         const sql = "UPDATE usuario SET nome = ?, matricula = ?, tipo = ? WHERE id = ? ";

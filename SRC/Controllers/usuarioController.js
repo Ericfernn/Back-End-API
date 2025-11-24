@@ -32,7 +32,7 @@ const usuarioController = {
     adicionarUsuario: (req, res) => {
         const dados = req.body;
 
-        usuarioModel.adicioanrUsuario(dados, (err, result) => {
+        usuarioModel.adicionarUsuario(dados, (err, result) => {
             if (err) {
                 console.error("Erro ao Adicionar um novo Usuário:", err);
                 return res.status(500).json({erro: "Erro ao Adicionar um novo Usuário: "});

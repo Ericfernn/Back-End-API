@@ -11,15 +11,16 @@ const livrosModel = {
         connection.query(sql, [id], callback);
     },
 
+
     adicionarLivro: (dados, callback) => {
-            const sql = "INSERT INTO livros (titulo, autor, ano) VALUES (?, ?, ?)";
-            connection.query(sql, [dados.titulo, dados.autor, dados.ano], callback);
-    },
+        // Agora usando as colunas REAIS do seu banco
+        const sql = "INSERT INTO livros (titulo, autor, categoria, disponibilidade) VALUES (?, ?, ?, ?)";
+        connection.query(sql, [dados.titulo,dados.autor, dados.categoria, dados.disponibilidade ], callback); 
+    },  
 
     atualizarLivro: (id, dados, callback) => {
-        const sql = "UPDATE livros SET titulo = ?, autor = ?, ano = ? WHERE id = ?";
-        connection.query(sql, [dados.titulo, dados.autor, dados.ano, id], callback
-        );
+        const sql = "UPDATE livros SET titulo = ?, autor = ?, categoria = ?, disponibilidade = ? WHERE id = ?";
+        connection.query(sql, [ dados.titulo, dados.autor,dados.categoria, dados.disponibilidade, id ], callback);
     },
 
     deletarLivro: (id, callback) => {
@@ -27,6 +28,7 @@ const livrosModel = {
         connection.query(sql, [id], callback);
     }
 };
+
 
 
 

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sistema de Biblioteca — CRUD </title>
+    <style>
+        body{font-family:Arial,Helvetica,sans-serif;background:#0f1720;color:#e6eef8;margin:0;padding:22px}
+        h1{margin:0 0 12px}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+        .card{background:#0b1220;padding:14px;border-radius:8px;border:1px solid #172033}
+        label{display:block;font-size:13px;margin-top:8px;color:#c7d2e0}
+        input[type=text], input[type=number], input[type=date], select{
+            width:100%;padding:8px;border-radius:6px;border:1px solid #213243;background:#071022;color:#fff;
+            box-sizing:border-box;margin-top:6px
+        }
+        button{margin-top:10px;padding:8px 10px;border-radius:6px;border:none;background:#06b6d4;color:#012;cursor:pointer}
+        button.warn{background:#f97316}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{padding:8px;border:1px solid #122233;text-align:left;font-size:13px;color:#dbeafe}
+        thead th{background:#041226}
+        .small{font-size:12px;color:#9aa8bd}
+        .fullwidth{grid-column:1 / -1}
+        .msg{padding:8px;border-radius:6px;margin-top:8px}
+        .msg.ok{background:#052e03;color:#b7f5a8}
+        .msg.err{background:#330000;color:#ffb3b3}
+        .debug{font-family:monospace;color:#cbd5e1;background:#021225;padding:8px;border-radius:6px;max-height:160px;overflow:auto;margin-top:8px}
+        button.edit {
+            background: #f97316; /* laranja */
+            color: #fff;
+        }
+
+        button.delete {
+            background: #dc2626; /* vermelho */
+            color: #fff;
+        }
+
+        .usuariosHeader {
+            align-content: center;
+            text-align: center;
+        }
+
+        .livrosHeader {
+            align-content: center;
+            text-align: center;
+        }
+
+        .emprestimosHeader {
+            align-content: center;
+            text-align: center;
+        }
+
+        .sistemaTitulo {
+            align-content: center;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h1 class = "sistemaTitulo" >Sistema de Biblioteca — CRUD</h1>
+<p class="small">API base: <strong>http://localhost:3000</strong> — rotas: <code>/usuario</code>, <code>/livros</code>, <code>/emprestimos</code></p>
+
+<div class="grid">
+
+    <!-- Usuários -->
+    <div class="card">
+        <h3 class = "usuariosHeader" >Usuários</h3>
+
+        <label for="u-nome">Nome</label>
+        <input id="u-nome" type="text" placeholder="Nome completo">
+
+        <label for="u-matricula">Matrícula</label>
+        <input id="u-matricula" type="text" placeholder="Matrícula">
+
+        <label for="u-tipo">Tipo</label>
+        <select id="u-tipo">
+            <option value="Aluno">Aluno</option>
+            <option value="Professor">Professor</option>
+            <option value="Funcionario">Funcionario</option>
+        </select>
+
+        <div>
+            <button onclick="createUser()">Criar Usuário</button>
+            <button class="edit" onclick="editUser()">Editar Usuário</button>
+            <button class="delete" onclick="deleteUser()">Deletar Usuário</button>
+        </div>
+
+        <div id="user-msg"></div>
+        <div id="user-debug" class="debug" style="display:none"></div>
+
+        <h4>Lista de Usuários</h4>
+        <table id="users-table">
+            <thead><tr><th>ID</th><th>Nome</th><th>Matrícula</th><th>Tipo</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Livros -->
+    <div class="card">
+        <h3 class = "livrosHeader" >Livros</h3>
+
+        <label for="b-titulo">Título</label>
+        <input id="b-titulo" type="text" placeholder="Título">
+
+        <label for="b-autor">Autor</label>
+        <input id="b-autor" type="text" placeholder="Autor">
+
+        <label for="b-categoria">Categoria</label>
+        <input id="b-categoria" type="text" placeholder="Categoria">
+
+        <label for="b-disponibilidade">Disponibilidade</label>
+        <select id="b-disponibilidade">
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+        </select>
+
+        <div>
+            <button onclick="createBook()">Criar livro</button>
+            <button class="edit" onclick="editBook()">Editar Livro</button>
+            <button class="delete" onclick="deleteBook()">Deletar Livro</button>
+        </div>
+
+        <div id="book-msg"></div>
+        <div id="book-debug" class="debug" style="display:none"></div>
+
+        <h4>Lista de Livros</h4>
+        <table id="books-table">
+            <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoria</th><th>Disponível</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Empréstimos -->
+    <div class="card fullwidth">
+        <h3 class = "emprestimosHeader" >Empréstimos</h3>
+
+        <label for="e-id-livro">ID do Livro</label>
+        <input id="e-id-livro" type="number" placeholder="ID do livro (número)">
+
+        <label for="e-id-usuario">ID do Usuário</label>
+        <input id="e-id-usuario" type="number" placeholder="ID do usuário (número)">
+
+        <label for="e-data-emprestimo">Data de Empréstimo</label>
+        <input id="e-data-emprestimo" type="date">
+
+        <label for="e-data-devolucao">Data de Devolução (opcional)</label>
+        <input id="e-data-devolucao" type="date">
+
+        <div>
+            <button onclick="createLoan()">Registrar empréstimo</button>
+            <button class="edit" onclick="editLoan()">Editar Empréstimo</button>
+            <button class="delete" onclick="deleteLoan()">Deletar Empréstimo</button>
+        </div>
+
+        <div id="loan-msg"></div>
+        <div id="loan-debug" class="debug" style="display:none"></div>
+
+        <h4>Lista de Empréstimos</h4>
+        <table id="loans-table">
+            <thead><tr><th>ID</th><th>ID Livro</th><th>ID Usuário</th><th>Data Empréstimo</th><th>Data Devolução</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:3000';
+
+    function showMsg(elId, text, ok=true) {
+        const el = document.getElementById(elId);
+        el.innerHTML = `<div class="msg ${ok ? 'ok' : 'err'}">${text}</div>`;
+        setTimeout(() => { if (el) el.innerHTML = ''; }, 4000);
+    }
+
+    function showDebug(elId, text) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.style.display = 'block';
+        el.textContent = text;
+    }
+
+    function escapeHtml(str){
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    // USERS
+    async function refreshUsers() {
+        try {
+            const res = await fetch(`${API_BASE}/usuario`);
+            if (!res.ok) throw new Error('Status ' + res.status);
+            const data = await res.json();
+            const tbody = document.querySelector('#users-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${u.id}</td><td>${escapeHtml(u.nome)}</td><td>${escapeHtml(u.matricula)}</td><td>${escapeHtml(u.tipo)}</td>`;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            showMsg('user-msg','Erro ao carregar usuários', false);
+            showDebug('user-debug', String(err));
+        }
+    }
+
+    async function createUser() {
+        const nome = document.getElementById('u-nome').value.trim();
+        const matricula = document.getElementById('u-matricula').value.trim();
+        const tipo = document.getElementById('u-tipo').value;
+        if (!nome || !matricula || !tipo) { showMsg('user-msg','Preencha todos os campos', false); return; }
+
+        try {
+            const res = await fetch(`${API_BASE}/usuario`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ nome, matricula, tipo })
+            });
+            if (!res.ok) throw new Error();
+            showMsg('user-msg','Usuário criado com sucesso!', true);
+            refreshUsers();
+        } catch (err) {
+            showMsg('user-msg','Erro ao criar usuário', false);
+            showDebug('user-debug', String(err));
+        }
+    }
+
+    async function deleteUser() {
+        const id = prompt("Digite o ID do usuário que deseja deletar:");
+        if (!id) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/usuario/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error();
+            showMsg('user-msg','Usuário deletado com sucesso!', true);
+            refreshUsers();
+        } catch (err) {
+            showMsg('user-msg','Erro ao deletar usuário', false);
+            showDebug('user-debug', String(err));
+        }
+    }
+
+    async function editUser() {
+        const id = prompt("Digite o ID do usuário que deseja editar:");
+        if (!id) return;
+
+        const nome = prompt("Novo nome:");
+        const matricula = prompt("Nova matrícula:");
+        const tipo = prompt("Novo tipo (Aluno, Professor, Funcionario):");
+
+        try {
+            const res = await fetch(`${API_BASE}/usuario/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ nome, matricula, tipo })
+            });
+            if (!res.ok) throw new Error();
+            showMsg('user-msg','Usuário atualizado com sucesso!', true);
+            refreshUsers();
+        } catch (err) {
+            showMsg('user-msg','Erro ao atualizar usuário', false);
+            showDebug('user-debug', String(err));
+        }
+    }
+
+    // BOOKS
+    async function refreshBooks() {
+        try {
+            const res = await fetch(`${API_BASE}/livros`);
+            if (!res.ok) throw new Error('Status ' + res.status);
+            const data = await res.json();
+            const tbody = document.querySelector('#books-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${b.id}</td><td>${escapeHtml(b.titulo)}</td><td>${escapeHtml(b.autor)}</td><td>${escapeHtml(b.categoria)}</td><td>${b.disponibilidade ? 'Sim' : 'Não'}</td>`;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            showMsg('book-msg','Erro ao carregar livros', false);
+            showDebug('book-debug', String(err));
+        }
+    }
+
+    async function createBook() {
+        const titulo = document.getElementById('b-titulo').value.trim();
+        const autor = document.getElementById('b-autor').value.trim();
+        const categoria = document.getElementById('b-categoria').value.trim();
+        const disponibilidade = Number(document.getElementById('b-disponibilidade').value);
+
+        if (!titulo || !autor || !categoria) {
+            showMsg('book-msg','Preencha todos os campos', false);
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/livros`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ titulo, autor, categoria, disponibilidade })
+            });
+            if (!res.ok) throw new Error();
+            showMsg('book-msg','Livro criado com sucesso!', true);
+            refreshBooks();
+        } catch (err) {
+            showMsg('book-msg','Erro ao criar livro', false);
+            showDebug('book-debug', String(err));
+        }
+    }
+
+    async function deleteBook() {
+        const id = prompt("Digite o ID do livro que deseja deletar:");
+        if (!id) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/livros/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error();
+            showMsg('book-msg','Livro deletado com sucesso!', true);
+            refreshBooks();
+        } catch (err) {
+            showMsg('book-msg','Erro ao deletar livro', false);
+            showDebug('book-debug', String(err));
+        }
+    }
+
+    async function editBook() {
+        const id = prompt("Digite o ID do livro que deseja editar:");
+        if (!id) return;
+
+        const titulo = prompt("Novo título:");
+        const autor = prompt("Novo autor:");
+        const categoria = prompt("Nova categoria:");
+        const disponibilidade = prompt("Disponível? (1 para Sim, 0 para Não):");
+
+        try {
+            const res = await fetch(`${API_BASE}/livros/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ titulo, autor, categoria, disponibilidade })
+            });
+            if (!res.ok) throw new Error();
+            showMsg('book-msg','Livro atualizado com sucesso!', true);
+            refreshBooks();
+        } catch (err) {
+            showMsg('book-msg','Erro ao atualizar livro', false);
+            showDebug('book-debug', String(err));
+        }
+    }
+
+    // LOANS
+    async function refreshLoans() {
+        try {
+            const res = await fetch(`${API_BASE}/emprestimos`);
+            if (!res.ok) throw new Error('Status ' + res.status);
+            const data = await res.json();
+            const tbody = document.querySelector('#loans-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(e => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${e.id}</td><td>${e.idLivro}</td><td>${e.idUsuario}</td><td>${e.dataEmprestimo}</td><td>${e.dataDevolucao ?? ''}</td>`;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            showMsg('loan-msg','Erro ao carregar empréstimos', false);
+            showDebug('loan-debug', String(err));
+        }
+    }
+
+    async function createLoan() {
+        const idLivro = document.getElementById('e-id-livro').value.trim();
+        const idUsuario = document.getElementById('e-id-usuario').value.trim();
+        const dataEmprestimo = document.getElementById('e-data-emprestimo').value;
+        const dataDevolucao = document.getElementById('e-data-devolucao').value || null;
+
+        if (!idLivro || !idUsuario || !dataEmprestimo) {
+            showMsg('loan-msg','Preencha todos os campos obrigatórios', false);
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/emprestimos`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ idLivro, idUsuario, dataEmprestimo, dataDevolucao })
+            });
+            if (!res.ok) throw new Error();
+            showMsg('loan-msg','Empréstimo registrado com sucesso!', true);
+            refreshLoans();
+        } catch (err) {
+            showMsg('loan-msg','Erro ao registrar empréstimo', false);
+            showDebug('loan-debug', String(err));
+        }
+    }
+
+    async function deleteLoan() {
+        const id = prompt("Digite o ID do empréstimo que deseja deletar:");
+        if (!id) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/emprestimos/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error();
+            showMsg('loan-msg','Empréstimo deletado com sucesso!', true);
+            refreshLoans();
+        } catch (err) {
+            showMsg('loan-msg','Erro ao deletar empréstimo', false);
+            showDebug('loan-debug', String(err));
+        }
+    }
+
+    async function editLoan() {
+        const id = prompt("Digite o ID do empréstimo que deseja editar:");
+        if (!id) return;
+
+        const idLivro = prompt("Novo ID do Livro:");
+        const idUsuario = prompt("Novo ID do Usuário:");
+        const dataEmprestimo = prompt("Nova data de empréstimo (AAAA-MM-DD):");
+        const dataDevolucao = prompt("Nova data de devolução (AAAA-MM-DD ou vazio):");
+
+        try {
+            const res = await fetch(`${API_BASE}/emprestimos/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ idLivro, idUsuario, dataEmprestimo, dataDevolucao })
+            });
+            if (!res.ok) throw new Error();
+            showMsg('loan-msg','Empréstimo atualizado com sucesso!', true);
+            refreshLoans();
+        } catch (err) {
+            showMsg('loan-msg','Erro ao atualizar empréstimo', false);
+            showDebug('loan-debug', String(err));
+        }
+    }
+
+    // Inicialização
+    refreshUsers();
+    refreshBooks();
+    refreshLoans();
+
+</script>
+</body>
+</html>
